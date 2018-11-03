@@ -1,0 +1,73 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+<audio src="/static/mp3/fssx.mp3" id="myaudio" controls="controls" index="0"></audio>
+<input type="button" onclick="autoPlay()" value="播放/暂停"/>
+<input type="button" onclick="closePlay()" value="停止"/>
+<div class="layui-form-item layui-form-text">
+    <div class="layui-inline1">
+        <div class="layui-input-block">
+            <textarea placeholder="请输入哥单" class="layui-textarea" id="songs"></textarea>
+        </div>
+    </div>
+</div>
+<div class="layui-form-item">
+    <div class="layui-input-block">
+        <button class="layui-btn" onclick="go();">go</button>
+    </div>
+</div>
+<div class="layui-form-item layui-form-text">
+    <div class="layui-inline1" id="info">
+
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block script %}
+<script language="javascript" type="text/javascript">
+
+
+        <!--function closePlay() {-->
+            <!--myAuto.pause();-->
+            <!--myAuto.load();-->
+        <!--}-->
+
+        function go() {
+            var songs=$('#songs').val().split(' ');
+            var songs=['爱在西元前','沙龙','忘情水']
+            <!--alert(songs);-->
+            var myAuto = document.getElementById('myaudio');
+            autoPlay()
+            $(myAuto).bind('ended', function () {
+                <!--var songs=['爱在西元前','沙龙','忘情水']--爱在西元前 沙龙 忘情水>
+                var index=parseInt(this.getAttribute('index'));
+                (index==songs.length-1) ? index=0 : index+=1;
+                this.setAttribute('index',index);
+                autoPlay();
+            });
+            function autoPlay() {
+            <!--var songs=['爱在西元前','沙龙','忘情水']-->
+            var index=parseInt(myAuto.getAttribute('index'));
+            var song=songs[index];
+            $.ajax({
+                url: '/ajax/?func=song',
+                type: 'POST',
+                dataType:"json",
+                data: {song:song},
+                success: function (ret) {
+                    myAuto.setAttribute('src',ret.msg);
+                    (myAuto.paused) ? myAuto.play() : myAuto.pause();
+                    $('#info').text('正在播放----{0}'.format(song))
+                }
+            })
+        }
+
+        }
+
+
+</script>
+{% endblock script %}
+
